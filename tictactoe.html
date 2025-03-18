@@ -1,0 +1,185 @@
+<html>
+    <head>
+        <title>Tic tac toe</title>
+        <style>
+            .w-100{
+                width:100%;
+            }
+            .tile{
+                width:100px;
+                height:100px;
+                border-radius:5px;
+                background: black;
+                margin:5px;
+                cursor: pointer;
+                color: white;
+                font-size: 60px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .row{
+                display: flex;
+                justify-content: center;
+            }
+            .text-center{
+                text-align: center;
+            }
+            .mt-3{
+                margin-top: 15px;;
+            }
+            .button{
+                background-color: black;
+                border-radius: 5px;
+                padding: 10px;
+                color: white;
+                cursor: pointer;
+            }
+            .button:disabled{
+                background-color: grey;
+            }
+            .input{
+                height: 35px;
+                width: 300px;
+                margin: 5px;
+                border-radius: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="w-100">
+            <h1 class="text-center">The Classic Tic-Tac-Toe</h2>
+        </div>
+        <div class="w-100" id="initial-screen">
+            <h3 class="text-center">Please enter both player's name and then start the game:</h3>
+            <div class="row mt-3">
+                <input type="text" placeholder="Name for Player O" class="input" id="player-o" onkeyup="checkValidation()">
+                <input type="text" placeholder="Name for Player X" class="input" id="player-x" onkeyup="checkValidation()">
+            </div>
+            <div class="w-100 mt-3 text-center">
+                <h3>Please select who will start the game:</h3>
+                <select id="start-turn" class="input">
+                    <option value="O">O</option>
+                    <option value="X">X</option>
+                </select>
+            </div>
+            <div class="row mt-3">
+                <button class="button" disabled="true" id="start_button" onclick="startGame()">Start Game</button>
+            </div>
+        </div>
+        <div class="w-100 mt-3" style="display: none;" id="game-screen">
+            <div class="row">
+                <h3 id="versus"></h3>
+            </div>
+            <div class="row mt-3">
+                <div class="tile" id="row-0_col-0" onClick="emulate(0,0)"></div>
+                <div class="tile" id="row-0_col-1" onClick="emulate(0,1)"></div>
+                <div class="tile" id="row-0_col-2" onClick="emulate(0,2)"></div>
+            </div>
+            <div class="row">
+                <div class="tile" id="row-1_col-0" onClick="emulate(1,0)"></div>
+                <div class="tile" id="row-1_col-1" onClick="emulate(1,1)"></div>
+                <div class="tile" id="row-1_col-2" onClick="emulate(1,2)"></div>
+            </div>
+            <div class="row">
+                <div class="tile" id="row-2_col-0" onClick="emulate(2,0)"></div>
+                <div class="tile" id="row-2_col-1" onClick="emulate(2,1)"></div>
+                <div class="tile" id="row-2_col-2" onClick="emulate(2,2)"></div>
+            </div>
+
+            <h2 class="text-center mt-3" id="winner"></h2>
+
+            <div class="row mt-3" style="display: none;" id="restartButton">
+                <button class="button" onclick="restartGame()">Restart Game</button>
+            </div>
+        </div>
+    </body>
+    <script>
+        let status = 1;
+        let players = {"O":"","X":""};
+        let turn = "O"; // it can be either of O or X
+        let emulation = [
+            ["","",""],
+            ["","",""],
+            ["","",""]
+        ];
+
+        function checkValidation(){
+            if(document.getElementById('player-o').value != "" && document.getElementById('player-x').value != ""){
+                document.getElementById('start_button').disabled = false;
+            }else{
+                document.getElementById('start_button').disabled = true;
+            }
+        }
+
+        function startGame(){
+            players['O'] = document.getElementById('player-o').value;
+            players['X'] = document.getElementById('player-x').value;
+            turn = document.getElementById('start-turn').value;
+            emulation = [["","",""],["","",""],["","",""]];
+            for(let row=0;row<3;row++){
+                for(let col=0;col<3;col++){
+                    document.getElementById('row-'+row+'_col-'+col).innerHTML = "";
+                }
+            }
+            status = 1;
+            document.getElementById('initial-screen').style.display = "none";
+            document.getElementById('game-screen').style.display = "";
+            document.getElementById('versus').innerHTML = players['O']+"(O) VS. "+players['X']+"(X)";
+        }
+
+        function emulate(r,c){
+            if(status == 1){
+                emulation[r][c] = turn;
+                document.getElementById('row-'+r+'_col-'+c).innerHTML = turn;
+                detectWinner();
+                turn = (turn == "X" ? "O" : "X");
+            }
+        }
+
+        function detectWinner(){
+            // first checking the row
+            for(let row=0;row<3;row++){
+                if(emulation[row][0] == turn && emulation[row][1] == turn && emulation[row][2] == turn){
+                    declareWinner();
+                    return;
+                }
+            }
+
+            // Now checking the column
+            for(let col=0;col<3;col++){
+                if(emulation[0][col] == turn && emulation[1][col] == turn && emulation[2][col] == turn){
+                    declareWinner();
+                    return;
+                }
+            }
+
+            //Now checking the diagonals
+            if(emulation[0][0] == turn && emulation[2][2] && emulation[1][1] == turn){
+                declareWinner();
+                return;
+            }
+
+            if(emulation[0][2] == turn && emulation[2][0] == turn && emulation[1][1] == turn){
+                declareWinner();
+                return;
+            }
+        }
+
+        function declareWinner(){
+            document.getElementById('winner').innerHTML = players[turn]+"("+turn+") Won the game.";
+            document.getElementById('restartButton').style.display = "";
+            status = 0;
+        }
+
+        function restartGame(){
+            document.getElementById('player-o').value = "";
+            document.getElementById('player-x').value = "";
+            document.getElementById('start_button').disabled = true;
+            document.getElementById('initial-screen').style.display = "";
+            document.getElementById('game-screen').style.display = "none";
+            document.getElementById('winner').innerHTML = "";
+            document.getElementById('restartButton').style.display = "none";
+        }
+    </script>
+</html>
