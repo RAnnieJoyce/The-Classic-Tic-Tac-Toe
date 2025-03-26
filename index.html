@@ -129,11 +129,11 @@
         }
 
         function emulate(r,c){
-            if(status == 1){
+            if(status == 1 && emulation[r][c] == ""){
                 emulation[r][c] = turn;
                 document.getElementById('row-'+r+'_col-'+c).innerHTML = turn;
                 detectWinner();
-                turn = (turn == "X" ? "O" : "X");
+                turn = (turn == "X" ? "O" : "X"); // run it 
             }
         }
 
@@ -155,7 +155,7 @@
             }
 
             //Now checking the diagonals
-            if(emulation[0][0] == turn && emulation[2][2] && emulation[1][1] == turn){
+            if(emulation[0][0] == turn && emulation[2][2] ==turn && emulation[1][1] == turn){
                 declareWinner();
                 return;
             }
@@ -163,6 +163,25 @@
             if(emulation[0][2] == turn && emulation[2][0] == turn && emulation[1][1] == turn){
                 declareWinner();
                 return;
+            }
+            //Tie checking condition:
+            // we need a flag variable which we will turn false if any cell is empty
+            let cells_filled = true; // so here we are assuming all the cells are filled and inside the loops we wil check if any cell is empty
+            // then we will turn cells_filled to false, and if it's false means cells are not filled yet
+            // which means its not a tie, but after loops cells_filled remains true then it means it's a tie, bevause all the winner conditions are done above
+            for(let row =0;row<3;row++){// loop to go through all the rows in emulation array
+                for(let col=0;col<3;col++){ // loop to go through all the columns
+                    if(emulation[row][col] == ""){ // means this cell is empty ? if yes then
+                        cells_filled = false; // means game is yet remaining so there's no tie
+                    }
+                }
+            }
+            // So here we are now after all the loops and if all the cells are filed we will declare it's a tie
+            if(cells_filled){
+                // Its a tie if this condition gets true
+                document.getElementById('winner').innerHTML = "It's a Tie, Restart game to play again."; // done, check it please
+                document.getElementById('restartButton').style.display = "";
+                status = 0;
             }
         }
 
